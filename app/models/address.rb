@@ -3,20 +3,24 @@ class Address
 
 	attr_accessor :city, :state, :location
 
-	def initialize (city, state, location)
-		@city= city.to_s
-		@state= state.to_s
-		@location=Point.new(location[:coordinates][0], location[:coordinates][1])
+	def initialize(city=nil, state=nil, location=nil)
+		city.nil? ? @city=city : @city=city
+		state.nil? ? @state=state : @state=state
+		location.nil? ? @loc=location : @location = Point.new(location[:coordinates][0], location[:coordinates][1])
 	end
 
 	def mongoize
-		return {:city=>@city, :state=>@state, :loc=>{:type=>"Point", :coordinates=>[@location.longitude, @location.latitude]}}
+		hash={}
+		hash[:city]=@city if @city
+		hash[:state]=@state if @state 
+		hash[:loc]={:type=>"Point", :coordinates=>[@location.nil? ? "" : @location.longitude, @location.nil? ? "" : @location.latitude]}
+		hash
 	end
 
 	def self.mongoize (object)
 		case object
 			when nil then nil
-			when Hash then {:city=>object[:city], :state=>object[:state], :loc=>object[:loc]}
+			when Hash then {:city=>object[:city], :state=>object[:state], :loc=>object[:loc].nil? ? nil : object[:loc]}
 			when Address then object.mongoize
 		end
 	end

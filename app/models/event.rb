@@ -7,6 +7,7 @@ class Event
 
   embedded_in :parent, polymorphic: true, touch: true
   validates_presence_of :order, :name
+  default_scope -> {order("o ASC")}
   
   def meters
   	case units
